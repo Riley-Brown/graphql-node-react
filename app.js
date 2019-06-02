@@ -12,12 +12,26 @@ app.use(
   '/graphql',
   graphqlHttp({
     schema: buildSchema(`
-      type RootQuery {
-        events: [String!]!
+      type Event {
+        _id: ID!
+        title: String!
+        description: String!
+        price: Float!
+        date: String!
       }
 
+      type RootQuery {
+        events: [Event!]!
+      }
+
+      type EventInput {
+        title: String!
+        description: String!
+        price: Float!
+        date: String!
+      }
       type RootMutation {
-        createEvent(name: String): String
+        createEvent(eventInput: EventInput): Event
       }
       schema {
         query: RootQuery
@@ -26,11 +40,17 @@ app.use(
     `),
     rootValue: {
       events: () => {
-        return ['Learning GraphQL', 'Its pretty cool', 'hello graphQL xD'];
+        return events;
       },
       createEvent: args => {
-        const eventName = args.name;
-        return eventName;
+        const event = {
+          _id: Math.random().toString(),
+          title: args.eventInput.description,
+          price: args.eventInput.price,
+          date: args.eventInput.date
+        };
+        events.push(event);
+        return event;
       }
     },
     graphiql: true
